@@ -1,3 +1,7 @@
+## README ##
+
+This homework is an exercise to train basic data analysis skills with `pandas` library.
+
 ### How to run ###
 
 * Clone current branch
@@ -8,4 +12,4 @@
 
 `$ jupyter notebook EPAM-Homework-pandas.ipynb`
 
-* Follow instaructions in jupyter notebook.
+* Follow instructions in jupyter notebook.
