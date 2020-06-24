@@ -8,7 +8,7 @@ This homework is an exercise to train basic data analysis skills with `pandas` l
 
 `$ git clone https://github.com/anipy/study_stuff.git --branch hw-pandas`
 
-`$ cd study_stuff`
+`$ cd study_stuff/hw-pandas/`
 
 `$ jupyter notebook EPAM-Homework-pandas.ipynb`
 
