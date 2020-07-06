@@ -16,7 +16,7 @@ from timer import Timer
 
 
 NAME = "downloader"
-VERSION = "0.0.1"
+VERSION = "0.0.2"
 EPILOG = "(c) Andrei Nikonov 2020"
 DESCRIPTION = """Script to download images from a file by url,
                  than thumbnail them and save to given directory"""
@@ -38,14 +38,11 @@ def __parse_size(size: str) -> Tuple[int, int]:
     return tuple(map(int, size.lower().split("x")))
 
 
-def __validate_args(passed_args: dict) -> bool:
+def __validate_args(passed_args: dict):
     """Check if all passed arguments valid
 
     Args:
       passed_args: a dictionary representing passed args and their values
-
-    Returns:
-      True if all validations passed
 
     Raises:
       Any Exception occurred while validation
@@ -56,36 +53,27 @@ def __validate_args(passed_args: dict) -> bool:
     pic_size = passed_args.get("size")
     export_dir = passed_args.get("dir")
 
-    assert (
-        1 <= n_thr <= 100
-    ), f"Can't create {n_thr} threads. It have to be in range(1, 100)"
+    if 1 <= n_thr <= 100:
+        pass
+    else:
+        raise ValueError(f"Can't create {n_thr} threads. It have to be in range(1, 100)")
 
-    if pic_size:
-        try:
-            height, width = __parse_size(pic_size)
-        except Exception:
-            raise
-
-        assert all(
-            [side > 0 for side in (height, width)]
-        ), "Both height and width have to be positive"
+    if pic_size and all([side > 0 for side in __parse_size(pic_size)]):
+        pass
+    else:
+        raise ValueError("Both height and width have to be positive")
 
     if export_dir:
         if os.path.exists(export_dir):
             pass
         else:
-            try:
-                os.mkdir(export_dir)
-            except Exception:
-                raise
+            os.mkdir(export_dir)
 
     if urllist_file:
         if os.path.exists(urllist_file[0]):
             pass
         else:
             raise FileNotFoundError(f"Can't find file {urllist_file}")
-
-    return True
 
 
 def get_args():
@@ -199,33 +187,32 @@ def download_pic(url: str) -> bytes:
 if __name__ == "__main__":
     args = get_args()
 
-    if __validate_args(args.__dict__):
-        logger.debug("Passed parameters: %s", args.__dict__)
+    __validate_args(args.__dict__)
+    logger.debug("Passed parameters: %s", args.__dict__)
 
-        with Timer(True):
-            with ThreadPool(args.threads) as pool_download:
-                download_result = pool_download.map(
-                    download_pic, read_file(args.urllist_filename[0])
-                )
-
-            save_img_params = [
-                (join(args.dir, f"{e+1:0>5}.jpg"), res, __parse_size(args.size))
-                for e, res in enumerate(download_result)
-            ]
-
-            with ThreadPool(args.threads) as pool_process:
-                save_result = pool_process.starmap(write_file, save_img_params)
-
-            pool_download.join()
-            pool_process.join()
-
-            download_bytes = sum(map(len, download_result))
-            successful = save_result.count(True)
-            failed = save_result.count(False)
-
-            print(
-                f"Statistics:\n\tDownloaded: {download_bytes/1024/1024:.2f} Mb"
-                f"\n\tSuccessful: {successful}"
-                f"\n\tFailed    : {failed}"
+    with Timer(True):
+        with ThreadPool(args.threads) as pool_download:
+            download_result = pool_download.map(
+                download_pic, read_file(args.urllist_filename[0])
             )
-    sys.exit(0)
+
+        save_img_params = [
+            (join(args.dir, f"{e+1:0>5}.jpg"), res, __parse_size(args.size))
+            for e, res in enumerate(download_result)
+        ]
+
+        with ThreadPool(args.threads) as pool_process:
+            save_result = pool_process.starmap(write_file, save_img_params)
+
+        pool_download.join()
+        pool_process.join()
+
+        download_bytes = sum(map(len, download_result))
+        successful = save_result.count(True)
+        failed = save_result.count(False)
+
+        logger.info(
+            f"Statistics:\n\tDownloaded: {download_bytes/1024/1024:.2f} Mb"
+            f"\n\tSuccessful: {successful}"
+            f"\n\tFailed    : {failed}"
+        )
