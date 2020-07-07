@@ -1,50 +1,7 @@
 import os
 
-import pytest
-
 import ostools
-from ostools import LogFile
 from ostools import TempDir
-
-
-def test_logfile_is_context_manager():
-    assert "__enter__" in LogFile.__dict__ and "__exit__" in LogFile.__dict__
-
-
-def test_logfile_create(tmp_path):
-    os.chdir(tmp_path)
-
-    @LogFile('aww_some.log')
-    def func_for_testing():
-        import time
-        time.sleep(1)
-        return 0
-
-    func_for_testing()
-
-    try:
-        assert 'aww_some.log' in os.listdir()
-    finally:
-        os.remove('aww_some.log')
-
-
-def test_logfile_contains_exception_info(tmp_path):
-    os.chdir(tmp_path)
-
-    @LogFile('aww_some.log')
-    def func_for_testing():
-        return 1/0
-
-    try:
-        with pytest.raises(Exception) as e:
-            func_for_testing()
-            assert isinstance(e, ZeroDivisionError)
-
-        with open('aww_some.log') as log_file:
-            assert 'division by zero' in log_file.read()
-
-    finally:
-        os.remove('aww_some.log')
 
 
 def test_tempdir_is_context_manager():
