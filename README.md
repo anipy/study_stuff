@@ -22,3 +22,5 @@ To get more information see README file for specific homework in corresponding b
 `git clone https://github.com/anipy/study_stuff.git --branch hw-multithreading`
 
 `git clone https://github.com/anipy/study_stuff.git --branch hw-cliargs`
+
+`git clone https://github.com/anipy/study_stuff.git --branch hw-regex`
