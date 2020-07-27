@@ -76,9 +76,6 @@ def solve_independent(args_seq: List[str]) -> Tuple[bool, bool]:
     """
     logger.debug("Independent options provided: %s", args_seq)
 
-    if not args_seq:
-        return False, False
-
     return "long" in args_seq, "reverse" in args_seq
 
 
@@ -112,7 +109,7 @@ def ls(passed: dict):
     """
 
     path = passed.get("inspect_catalog") or "."
-    long, reverse = solve_independent(passed.get("independent"))
+    long, reverse = solve_independent(passed.get("independent") or [])
     sorting = list(filter(lambda x: x, solve_sort(passed.get("sorting")))) or [
         "ctime",
         "name",
@@ -120,9 +117,7 @@ def ls(passed: dict):
     s_time = solve_showtime(sorting) or "ctime"
 
     if path and os.path.exists(path):
-        if os.path.isdir(path):
-            pass
-        else:
+        if not os.path.isdir(path):
             logger.debug("Got file as argument: %s", path)
 
             entry_info = EntryInfo(
@@ -161,7 +156,7 @@ def ls(passed: dict):
     else:
         if args.all:
             logger.info(
-                "%s", "  ".join(filter(lambda x: not x[0] == ".", os.listdir(path)))
+                "%s", "  ".join(filter(lambda x: not x.startswith("."), os.listdir(path)))
             )
         else:
             logger.info("%s", "  ".join(os.listdir(path)))
@@ -245,7 +240,7 @@ if __name__ == "__main__":
     args = get_args()
 
     if args.debug:
-        logger.level = logging.DEBUG
+        logger.setLevel(logging.DEBUG)
 
     logger.debug("Got arguments: %s", args.__dict__)
     ls(args.__dict__)

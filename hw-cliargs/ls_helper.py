@@ -31,17 +31,17 @@ class EntryInfo:
         if show_time not in ('atime', 'ctime', 'mtime'):
             raise ValueError('Only (`atime`, `ctime`, `mtime`) allowed for show_time argument')
 
-        if long_format:
-            return '  '.join(
-                [
-                    self.__dict__.get(show_time),
-                    self.__dict__.get('mode'),
-                    f"{str(self.__dict__.get('size_pretty' if pretty_size else 'size'))}",
-                    self.__dict__.get('name')
-                ]
-            )
-        else:
+        if not long_format:
             return self.__dict__.get('name')
+
+        return '  '.join(
+            [
+                self.__dict__.get(show_time),
+                self.__dict__.get('mode'),
+                f"{str(self.__dict__.get('size_pretty' if pretty_size else 'size'))}",
+                self.__dict__.get('name')
+            ]
+        )
 
 
 @functools.total_ordering
