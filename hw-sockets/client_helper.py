@@ -9,6 +9,7 @@ Size: Class to handle file size and pretty print it.
 
 import functools
 from collections import OrderedDict
+from time import sleep
 from typing import Callable
 
 
@@ -47,6 +48,7 @@ class MetricCollector:
 
         while self._active:
             self.value = self.target_function()
+            sleep(1)  # for saving CPU usage
 
     def get_current_state(self):
         """Get current state of observable metric"""
